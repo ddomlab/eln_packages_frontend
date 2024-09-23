@@ -7,7 +7,9 @@ class Processor:
     def __init__(self):
         self.registry: Registry = Registry()
         self.labelgen: LabelGenerator = LabelGenerator()
-        self.rm = cas_grab.resourcemanage.Resource_Manager()
+        self.rm = (
+            cas_grab.resourcemanage.Resource_Manager()
+        )  # for some reason ruff doesn't like typing this as a Resource_Manager
 
     ### Actions ###
     def open_page(self, id: int):
