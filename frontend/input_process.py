@@ -28,7 +28,7 @@ class Processor:
         self.registry = Registry()
         print("registry cleared")
 
-    def assosciate(self, item_id: int):
+    def associate(self, item_id: int):
         experiment_id = input("enter experiment id:\n")
         self.rm.experiment_item_link(experiment_id, item_id)  # TODO fix this
 
@@ -40,11 +40,11 @@ class Processor:
     ###   ###
     commands: dict = {
         "open_page": open_page,
-        "mark_opened": mark_open,
+        "mark open": mark_open,
         "archive": archive_item,
         "batch": batch_action,
         "clear": clear,
-        "assosciate": assosciate,
+        "associate": associate,
         "print": add_and_print_registry,
     }
     override_commands: list[str] = ["clear", "batch"]
@@ -96,6 +96,12 @@ class Processor:
             self.from_data({"action": input})
         else:
             print("Not understood, try again")
+
+    def from_terminal(self, input: str):
+        if input[0] == "{":
+            self.from_data(input)
+        else:
+            self.from_human(input)
 
 
 class Registry:
