@@ -131,7 +131,7 @@ class ImageWithCaption(tk.Frame):
 def main():
     # Create the main window
     root = tk.Tk()
-    root.title("Simple Terminal")
+    root.title("Label Manager")
     root.resizable(width=False, height=False)
     MainApplication(root).pack(side="top", fill="both", expand=True)
 
