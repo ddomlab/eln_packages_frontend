@@ -4,12 +4,15 @@ import cas_grab.resourcemanage
 
 
 class Processor:
-    def __init__(self):
+    def __init__(self, gui):
         self.registry: Registry = Registry()
         self.labelgen: LabelGenerator = LabelGenerator()
         self.rm = (
             cas_grab.resourcemanage.Resource_Manager()
         )  # for some reason ruff doesn't like typing this as a Resource_Manager
+        self.output: str = ""  # use like print() but for the GUI
+        self.gui = gui
+        self.experiment_id = None  # for associating items with experiments, needs to be stored outside method for batch operations
 
     ### Actions ###
     def open_page(self, id: int):
@@ -26,11 +29,14 @@ class Processor:
 
     def clear(self, *args):
         self.registry = Registry()
-        print("registry cleared")
+        self.gui_print("registry cleared")
 
     def associate(self, item_id: int):
-        experiment_id = input("enter experiment id:\n")
-        self.rm.experiment_item_link(experiment_id, item_id)  # TODO fix this
+        if self.experiment_id is None:
+            self.experiment_id = self.gui.input_prompt("Enter Experiment ID")
+        self.rm.experiment_item_link(self.experiment_id, item_id)
+        if item_id == self.registry.id_registry[-1]:
+            self.experiment_id = None
 
     def add_and_print_registry(self, id: int):
         self.labelgen.add_item(id)
@@ -95,13 +101,22 @@ class Processor:
         elif input in self.commands:
             self.from_data({"action": input})
         else:
-            print("Not understood, try again")
+            self.gui_print("Not understood, try again")
 
-    def from_terminal(self, input: str):
+    def from_terminal(
+        self, input: str
+    ):  # decides if it's from human input in the terminal, or from qr code scanning
+        self.gui_print("")  # clear output on gui
         if input[0] == "{":
             self.from_data(input)
         else:
             self.from_human(input)
+
+    def gui_print(
+        self, output: str
+    ):  # prints to a textbox in the gui, as well as stdout
+        print(output)
+        self.output = output
 
 
 class Registry:
@@ -112,7 +127,9 @@ class Registry:
 
     def toggle_batch(self):
         self.is_batch = not self.is_batch  # toggle batch mode
-        if not self.is_batch:  # if you just turned off batch mode
+        if (
+            not self.is_batch and len(self.id_registry) != 0
+        ):  # if you just turned off batch mode and there are numbers in the list
             self.id_registry = [
                 self.id_registry[-1]
             ]  # make the list have one element, the most recently added
