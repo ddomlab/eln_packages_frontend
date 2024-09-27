@@ -60,6 +60,7 @@ class InputProcessor(tk.Frame):
 
         self.entry = tk.Entry(self, width=50)
         self.entry.pack(padx=10, pady=5)
+        self.entry.focus_set()
 
         self.output = tk.Label(self, text=self.parent.ip.output)
         self.output.pack(side="bottom")

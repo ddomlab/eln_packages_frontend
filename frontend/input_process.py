@@ -22,7 +22,7 @@ class Processor:
     def archive_item(self, id: int):
         self.rm.change_item(id, {"action": "archive"})
 
-    def mark_open(self, id: int):  # change to mark status (more abstract)
+    def mark_open(self, id: int):  # TODO: change to mark status (more abstract)
         self.rm.change_item(id, {"status": 4})
 
     def batch_action(self, *args):
