@@ -17,7 +17,7 @@ class Processor:
 
     ### Actions ###
     def open_page(self, id: int):
-        subprocess.run(f"explorer.exe https://eln.ddomlab.org/database.php?mode=view&id={id}")
+        subprocess.run(["explorer.exe", f"https://eln.ddomlab.org/database.php?mode=view&id={id}"])
 
     def archive_item(self, id: int):
         self.rm.change_item(id, {"action": "archive"})
