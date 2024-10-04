@@ -1,7 +1,7 @@
 import json
 from printer.generate_label import LabelGenerator
 import cas_grab.resourcemanage
-import subprocess
+import webbrowser
 
 
 class Processor:
@@ -17,7 +17,7 @@ class Processor:
 
     ### Actions ###
     def open_page(self, id: int):
-        subprocess.run(["explorer.exe", f"https://eln.ddomlab.org/database.php?mode=view&id={id}"])
+        webbrowser.open(f"https://eln.ddomlab.org/database.php?mode=view&id={id}")
 
     def archive_item(self, id: int):
         self.rm.change_item(id, {"action": "archive"})
