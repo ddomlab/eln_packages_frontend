@@ -27,4 +27,4 @@ def add_item(id: int):
 
 
 def write_labels():
-    os.rename("tmp/printerqueue.pdf", "tmp/printed.pdf")
+    os.rename("tmp/printerqueue.pdf", rm.config.PRINTER_PATH)
