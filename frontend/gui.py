@@ -122,7 +122,7 @@ class ImageWithCaption(tk.Frame):
     def __init__(self, parent, imagename, captiontext):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.image = tk.PhotoImage(file=f"images/{imagename}.gif")
+        self.image = tk.PhotoImage(file=f"frontend/images/{imagename}.gif")
         self.label = tk.Label(self, image=self.image)
         self.label.pack()
         self.caption = tk.Label(self, text=captiontext)
