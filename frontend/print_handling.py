@@ -1,9 +1,9 @@
-import cas_grab.resourcemanage
+import backend.resourcemanage
 from pypdf import PdfMerger
 import io
 import os
 
-rm = cas_grab.resourcemanage.Resource_Manager()
+rm = backend.resourcemanage.Resource_Manager()
 
 
 def add_item(id: int):
