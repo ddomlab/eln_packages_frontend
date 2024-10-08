@@ -1,18 +1,18 @@
 import json
-from printer.generate_label import LabelGenerator
 import cas_grab.resourcemanage
 import webbrowser
+import frontend.print_handling
 
 
 class Processor:
     def __init__(self, gui):
         self.registry: Registry = Registry()
-        self.labelgen: LabelGenerator = LabelGenerator()
         self.rm = (
             cas_grab.resourcemanage.Resource_Manager()
         )  # for some reason ruff doesn't like typing this as a Resource_Manager
         self.output: str = ""  # use like print() but for the GUI
         self.gui = gui
+        self.print_handling = frontend.print_handling
         self.experiment_id = None  # for associating items with experiments, needs to be stored outside method for batch operations
 
     ### Actions ###
@@ -40,9 +40,9 @@ class Processor:
             self.experiment_id = None
 
     def add_and_print_registry(self, id: int):
-        self.labelgen.add_item(id)
+        self.print_handling.add_item(id)
         if id == self.registry.id_registry[-1]:
-            self.labelgen.write_labels()
+            self.print_handling.write_labels()
 
     ###   ###
     commands: dict = {
