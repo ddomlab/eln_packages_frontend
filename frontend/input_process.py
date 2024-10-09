@@ -1,5 +1,5 @@
 import json
-import common.resourcemanage
+from resourcemanage import Resource_Manager
 import webbrowser
 import print_handling
 
@@ -7,9 +7,7 @@ import print_handling
 class Processor:
     def __init__(self, gui):
         self.registry: Registry = Registry()
-        self.rm = (
-            common.resourcemanage.Resource_Manager()
-        )  # for some reason ruff doesn't like typing this as a Resource_Manager
+        self.rm = Resource_Manager()
         self.output: str = ""  # use like print() but for the GUI
         self.gui = gui
         self.print_handling = print_handling

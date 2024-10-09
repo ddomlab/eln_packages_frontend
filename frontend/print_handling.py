@@ -1,9 +1,12 @@
-import common.resourcemanage
+import resourcemanage
 from pypdf import PdfMerger
 import io
 import os
+from pathlib import Path
 
-rm = common.resourcemanage.Resource_Manager()
+rm = resourcemanage.Resource_Manager()
+current_dir = Path(__file__).parent
+temp_path = str(current_dir.parent / "tmp" / "printerqueue.pdf")
 
 
 def add_item(id: int):
@@ -18,7 +21,7 @@ def add_item(id: int):
                 ).data
             )
             try:  # if the file exsits, it merges the new label with the existing one
-                existing_label = open("tmp/printerqueue.pdf", "rb")
+                existing_label = open(temp_path, "rb")
                 merger.append(existing_label)
                 existing_label.close()
             except (
@@ -26,9 +29,9 @@ def add_item(id: int):
             ):  # otherwise, it just doesn't worry about it and starts a new file
                 pass
             merger.append(new_label)
-            merger.write(open("tmp/printerqueue.pdf", "wb"))
+            merger.write(open(temp_path, "wb"))
             merger.close()  # closes the merger --- potentially there would be benefit to leaving the merger open until write_labels but then this would have to be another object
 
 
 def write_labels():
-    os.rename("tmp/printerqueue.pdf", rm.printer_path)
+    os.rename(temp_path, rm.printer_path)

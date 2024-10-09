@@ -1,5 +1,8 @@
 import tkinter as tk
 import input_process
+from pathlib import Path
+
+current_dir = Path(__file__).parent
 
 
 class MainApplication(tk.Frame):
@@ -122,7 +125,9 @@ class ImageWithCaption(tk.Frame):
     def __init__(self, parent, imagename, captiontext):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.image = tk.PhotoImage(file=f"images/{imagename}.gif")
+        self.image = tk.PhotoImage(
+            file=str(current_dir / "images" / f"{imagename}.gif")
+        )
         self.label = tk.Label(self, image=self.image)
         self.label.pack()
         self.caption = tk.Label(self, text=captiontext)
