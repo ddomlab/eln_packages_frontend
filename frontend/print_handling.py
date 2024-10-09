@@ -34,4 +34,5 @@ def add_item(id: int):
 
 
 def write_labels():
+    if os.path.isfile(rm.printer_path): os.remove(rm.printer_path)
     os.rename(temp_path, rm.printer_path)
