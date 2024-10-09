@@ -1,7 +1,7 @@
 import json
 import common.resourcemanage
 import webbrowser
-import frontend.print_handling
+import print_handling
 
 
 class Processor:
@@ -12,7 +12,7 @@ class Processor:
         )  # for some reason ruff doesn't like typing this as a Resource_Manager
         self.output: str = ""  # use like print() but for the GUI
         self.gui = gui
-        self.print_handling = frontend.print_handling
+        self.print_handling = print_handling
         self.experiment_id = None  # for associating items with experiments, needs to be stored outside method for batch operations
 
     ### Actions ###

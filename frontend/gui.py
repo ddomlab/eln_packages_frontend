@@ -1,12 +1,12 @@
 import tkinter as tk
-import frontend.input_process
+import input_process
 
 
 class MainApplication(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.ip = frontend.input_process.Processor(self)
+        self.ip = input_process.Processor(self)
         self.textbox = InputProcessor(self)
         self.registry_display = RegistryDisplay(self)
         self.image_display = ImageDisplay(self)
@@ -122,7 +122,7 @@ class ImageWithCaption(tk.Frame):
     def __init__(self, parent, imagename, captiontext):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.image = tk.PhotoImage(file=f"frontend/images/{imagename}.gif")
+        self.image = tk.PhotoImage(file=f"images/{imagename}.gif")
         self.label = tk.Label(self, image=self.image)
         self.label.pack()
         self.caption = tk.Label(self, text=captiontext)
