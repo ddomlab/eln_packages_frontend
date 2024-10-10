@@ -106,8 +106,12 @@ class Processor:
         self, input: str
     ):  # decides if it's from human input in the terminal, or from qr code scanning
         self.gui_print("")  # clear output on gui
+        if input == "":
+            return
         if input[0] == "{":
             self.from_data(input)
+        elif input[:4] == "http":
+            self.from_data({"id": int(input.split("=")[-1])})
         else:
             self.from_human(input)
 
