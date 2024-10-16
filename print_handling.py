@@ -1,6 +1,7 @@
 from eln_packages_common.resourcemanage import Resource_Manager
 from pypdf import PdfMerger
 import io
+import webbrowser
 import os
 from pathlib import Path
 
@@ -36,4 +37,5 @@ def add_item(id: int):
 def write_labels():
     if os.path.isfile(rm.printer_path): os.remove(rm.printer_path)
     os.rename(temp_path, rm.printer_path)
-    # open file in firefox? open print dialog?
+    # opens the file in firefox
+    webbrowser.open(f"file://{rm.printer_path}")
