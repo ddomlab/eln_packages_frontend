@@ -6,7 +6,7 @@ from pathlib import Path
 
 rm = Resource_Manager()
 current_dir = Path(__file__).parent
-temp_path = str(current_dir.parent / "tmp" / "printerqueue.pdf")
+temp_path = str(current_dir / "tmp" / "printerqueue.pdf")
 
 
 def add_item(id: int):
@@ -36,3 +36,4 @@ def add_item(id: int):
 def write_labels():
     if os.path.isfile(rm.printer_path): os.remove(rm.printer_path)
     os.rename(temp_path, rm.printer_path)
+    # open file in firefox? open print dialog?
