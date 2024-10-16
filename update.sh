@@ -3,4 +3,3 @@
 # run with git bash or anaconda prompt on windows
 git pull
 git submodule update 
-conda 

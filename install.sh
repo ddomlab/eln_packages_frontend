@@ -9,3 +9,4 @@ if [ ! -f $DIR/api_key ]; then
 fi
 git submodule init
 git submodule update
+conda env create -f $DIR/environment.yml
