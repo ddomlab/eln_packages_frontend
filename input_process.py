@@ -1,5 +1,5 @@
 import json
-from resourcemanage import Resource_Manager
+from eln_packages_common.resourcemanage import Resource_Manager
 import webbrowser
 import print_handling
 

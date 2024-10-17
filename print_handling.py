@@ -1,12 +1,12 @@
-import resourcemanage
+from eln_packages_common.resourcemanage import Resource_Manager
 from pypdf import PdfMerger
 import io
 import os
 from pathlib import Path
 
-rm = resourcemanage.Resource_Manager()
+rm = Resource_Manager()
 current_dir = Path(__file__).parent
-temp_path = str(current_dir.parent / "tmp" / "printerqueue.pdf")
+temp_path = str(current_dir / "tmp" / "printerqueue.pdf")
 
 
 def add_item(id: int):
