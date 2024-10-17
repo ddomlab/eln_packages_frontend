@@ -31,9 +31,11 @@ class Processor:
         self.gui_print("registry cleared")
 
     def associate(self, item_id: int):
+        # because this task can be run in batch, it has to check if experiment_id has already been set, and if not, it willask
         if self.experiment_id is None:
             self.experiment_id = self.gui.input_prompt("Enter Experiment ID")
         self.rm.experiment_item_link(self.experiment_id, item_id)
+        # when the last item is processed, reset the experiment_id
         if item_id == self.registry.id_registry[-1]:
             self.experiment_id = None
 
