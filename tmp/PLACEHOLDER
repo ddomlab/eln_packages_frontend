@@ -1,0 +1,2 @@
+DONT DELETE THIS!
+Github automatically deletes all empty directories. The tmp/ directory is important, but tmp/* is in the .gitignore. Keep this file here to prevent Github from deleting the tmp directory.
