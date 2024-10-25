@@ -128,8 +128,12 @@ class ImageWithCaption(tk.Frame):
         self.image = tk.PhotoImage(
             file=str(current_dir / "images" / f"{imagename}.gif")
         )
-        self.label = tk.Label(self, image=self.image)
-        self.label.pack()
+        self.img_btn = tk.Button(
+            self, 
+            image=self.image,
+            command=lambda: self.parent.parent.ip.from_terminal(imagename),
+            )
+        self.img_btn.pack()
         self.caption = tk.Label(self, text=captiontext)
         self.caption.pack()
 
