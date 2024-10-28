@@ -12,7 +12,7 @@ class MainApplication(tk.Frame):
         self.ip = input_process.Processor(self)
         self.textbox = InputProcessor(self)
         self.registry_display = RegistryDisplay(self)
-        self.image_display = ImageDisplay(self)
+        self.image_display = ImageDisplay(self, commands=self.ip.commands.keys())
 
         self.registry_display.pack(
             side="left", fill="both", expand=True, padx=10, pady=10
@@ -23,7 +23,9 @@ class MainApplication(tk.Frame):
     def input_prompt(self, prompt):
         input_window = SmallInputWindow(self, prompt)
         return input_window.get_input()
-
+    def status_prompt(self, prompt):
+        input_window = StatusInputWindow(self, prompt)
+        return input_window.get_input()
 
 class SmallInputWindow(tk.Toplevel):
     def __init__(self, parent, prompt=""):
@@ -52,7 +54,17 @@ class SmallInputWindow(tk.Toplevel):
     def get_input(self):
         return self.result
 
+class StatusInputWindow(tk.Toplevel):
+    def __init__(self, parent, prompt=""):
+        # self.commands = {0: 'In Use', 1: 'Available', 2: 'Unopened', 3: 'Opened', 4: 'Empty'}
+        self.commands: list[str] = ['In Use', 'Available', 'Unopened', 'Opened', 'Empty']
+        self.input_window = SmallInputWindow(parent, prompt)
+        self.image_display = ImageDisplay(self.input_window, commands=self.commands)
+        self.image_display.pack(side="bottom", fill="both", expand=True)
 
+    def get_input(self):
+        return self.input_window.get_input()
+    
 class InputProcessor(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
@@ -71,12 +83,11 @@ class InputProcessor(tk.Frame):
         self.entry.bind("<Return>", self.handle_command)
 
     # Function to handle the command input
-    def handle_command(self, event):
-        # Get the input from the entry box
-        command = self.entry.get()
+    def handle_command(self,event=None, command:str = None):
+        if command is None:
+            command = self.entry.get()
         # Clear the entry box after pressing return
         self.entry.delete(0, tk.END)
-
         self.parent.ip.from_terminal(command)
         self.parent.registry_display.update_registry(
             self.parent.ip.registry.id_registry
@@ -84,7 +95,6 @@ class InputProcessor(tk.Frame):
         self.output.config(
             text=self.parent.ip.output
         )  # print the output from gui_print()
-
 
 class RegistryDisplay(tk.Frame):
     def __init__(self, parent):
@@ -106,17 +116,17 @@ class RegistryDisplay(tk.Frame):
 
 
 class ImageDisplay(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, commands: list[str]=None):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.images: list[str] = self.parent.ip.commands.keys()
+        self.commands = commands
         self.create_grid()
 
     def create_grid(self):
         # Display images in a 2x4 grid
-        for i, imagename in enumerate(self.images):
-            row = i // 4
-            col = i % 4
+        for i, imagename in enumerate(self.commands):
+            row = i // 2
+            col = i % 2
             imagegroup = ImageWithCaption(self, imagename, imagename)
             imagegroup.grid(row=row, column=col, padx=40, pady=40)
 
@@ -126,12 +136,12 @@ class ImageWithCaption(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         self.image = tk.PhotoImage(
-            file=str(current_dir / "images" / f"{imagename}.gif")
+            file = str(current_dir / "images" / f"{imagename}.gif")
         )
         self.img_btn = tk.Button(
             self, 
             image=self.image,
-            command=lambda: self.parent.parent.ip.from_terminal(imagename),
+            command=lambda: self.parent.parent.textbox.handle_command(command=imagename),
             )
         self.img_btn.pack()
         self.caption = tk.Label(self, text=captiontext)

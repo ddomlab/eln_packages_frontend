@@ -12,6 +12,7 @@ class Processor:
         self.gui = gui
         self.print_handling = print_handling
         self.experiment_id = None  # for associating items with experiments, needs to be stored outside method for batch operations
+        self.new_status = None # for changing status, needs to be stored outside method for batch operations
 
     ### Actions ###
     def open_page(self, id: int):
@@ -19,21 +20,38 @@ class Processor:
 
     def archive_item(self, id: int):
         self.rm.change_item(id, {"action": "archive"})
+        self.gui.input_prompt((f"Item {id} archived"))
+        
 
     def mark_open(self, id: int):  # TODO: change to mark status (more abstract)
         self.rm.change_item(id, {"status": 4})
+        
+    def edit_status(self, id: int):
+        # because this task can be run in batch, it has to check if new_status has already been set, and if not, it willask
+        if self.new_status is None:
+            self.new_status = self.gui.input_prompt("Enter new status")
+            if self.new_status is None or self.new_status == "":
+                self.gui_print("No experiment ID entered, status edit cancelled")
+                return
+        self.rm.change_item(id, {"status": self.new_status})
+        # when the last item is processed, reset the new_status
+        if id == self.registry.id_registry[-1]:
+            self.new_status = None
 
     def batch_action(self, *args):
         self.registry.toggle_batch()
 
     def clear(self, *args):
         self.registry = Registry()
-        self.gui_print("registry cleared")
+        #self.gui_print("registry cleared")
 
     def associate(self, item_id: int):
         # because this task can be run in batch, it has to check if experiment_id has already been set, and if not, it willask
         if self.experiment_id is None:
             self.experiment_id = self.gui.input_prompt("Enter Experiment ID")
+            if self.experiment_id is None or self.experiment_id == "":
+                self.gui_print("No experiment ID entered, association cancelled")
+                return
         self.rm.experiment_item_link(self.experiment_id, item_id)
         # when the last item is processed, reset the experiment_id
         if item_id == self.registry.id_registry[-1]:
@@ -47,8 +65,8 @@ class Processor:
     ###   ###
     commands: dict = {
         "open_page": open_page,
-        "mark open": mark_open,
-        "archive": archive_item,
+        "edit_status": edit_status,
+        # "archive": archive_item,
         "batch": batch_action,
         "clear": clear,
         "associate": associate,
@@ -60,9 +78,8 @@ class Processor:
     # On the one hand, this requires some more processing, I suppose I could have just had the QR codes store the commands directly,
     # but I worry that there would become a need for more complex qr codes and more complex commands in the future, so I decided to store
     # each command or id in a json string.
-    def register(
-        self, input: str
-    ):  # expect a string, but NOT json/dict-- from_data() pre-processes that
+    def register(self, input: str):  
+        # expect a string, but NOT json/dict-- from_data() pre-processes that
         self.registry.action = input
         # if the action is in the override_commands list, execute it immediately
         # if there is an action and at least one id in the registry, execute the command
@@ -74,10 +91,11 @@ class Processor:
             ):  # for each id in the id_registry, run the command on it
                 self.commands[self.registry.action](self, id)
             self.clear()  # clear the registry after the commands are run
+        elif len(self.registry.id_registry) == 0:
+            self.gui_print("No ID in registry, please enter an ID first")
 
-    def from_data(
-        self, input: str | dict
-    ):  # register items from a python dictionary or json file
+    def from_data(self, input: str | dict):  
+    # register items from a python dictionary or json file
         if type(input) is str:
             data = json.loads(input)  # if it's json, turn it into a dict
         else:
@@ -104,9 +122,8 @@ class Processor:
         else:
             self.gui_print("Not understood, try again")
 
-    def from_terminal(
-        self, input: str
-    ):  # decides if it's from human input in the terminal, or from qr code scanning
+    def from_terminal(self, input: str):
+        # decides if it's from human input in the terminal, or from qr code scanning
         self.gui_print("")  # clear output on gui
         if input == "":
             return
@@ -117,9 +134,8 @@ class Processor:
         else:
             self.from_human(input)
 
-    def gui_print(
-        self, output: str
-    ):  # prints to a textbox in the gui, as well as stdout
+    def gui_print(self, output: str):
+    # prints to a textbox in the gui, as well as stdout
         print(output)
         self.output = output
 
