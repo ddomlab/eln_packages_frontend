@@ -10,7 +10,7 @@ class MainApplication(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         self.ip = input_process.Processor(self)
-        self.textbox = InputProcessor(self)
+        self.textbox = BigTextbox(self)
         self.registry_display = RegistryDisplay(self)
         self.image_display = ImageDisplay(self, commands=self.ip.commands.keys())
 
@@ -74,7 +74,7 @@ class StatusInputWindow(SmallInputWindow):
         self.grab_set()
         self.wait_window(self)
 
-class InputProcessor(tk.Frame):
+class BigTextbox(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.parent = parent
@@ -97,6 +97,7 @@ class InputProcessor(tk.Frame):
             command = self.entry.get()
         # Clear the entry box after pressing return
         self.entry.delete(0, tk.END)
+        # actually run the command
         self.parent.ip.from_terminal(command)
         self.parent.registry_display.update_registry(
             self.parent.ip.registry.id_registry
