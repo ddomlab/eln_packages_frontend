@@ -20,12 +20,14 @@ class MainApplication(tk.Frame):
         self.textbox.pack(side="top", fill="both", expand=True, padx=10, pady=10)
         self.image_display.pack(side="bottom", fill="both", expand=True)
 
-    def input_prompt(self, prompt):
+    def input_prompt(self, prompt) -> str:
         input_window = SmallInputWindow(self, prompt)
         return input_window.get_input()
-    def status_prompt(self, prompt):
+    def status_prompt(self, prompt) -> str:
         input_window = StatusInputWindow(self, prompt)
-        return input_window.get_input()
+        r = input_window.get_input()
+        print(r)
+        return r
 class IDInputBox(tk.Frame):
     def __init__(self,parent):
         tk.Frame.__init__(self, parent)
@@ -34,6 +36,8 @@ class IDInputBox(tk.Frame):
         self.entry.pack()
         self.entry.focus_set()
         self.entry.bind("<Return>", parent.submit)
+    def handle_command(self, event=None, command:str = None):
+        self.parent.submit(command=command)
        
         
 class SmallInputWindow(tk.Toplevel):
@@ -83,8 +87,12 @@ class StatusInputWindow(tk.Toplevel):
         self.grab_set()
         self.wait_window(self)
 
-    def submit(self, event=None):
-        self.result = self.textbox.get_entry()
+    def submit(self, event=None, command:str = None):
+        if command is None:
+            command = self.textbox.entry.get()
+        if command in self.commands:
+            command = self.commands.index(command)
+        self.result = command
         self.destroy()  # Close the window
 
     def get_input(self):
