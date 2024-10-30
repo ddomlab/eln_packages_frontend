@@ -26,9 +26,21 @@ class MainApplication(tk.Frame):
     def status_prompt(self, prompt):
         input_window = StatusInputWindow(self, prompt)
         return input_window.get_input()
-
+class IDInputBox(tk.Frame):
+    def __init__(self,parent):
+        tk.Frame.__init__(self, parent)
+        self.parent = parent
+        self.entry = tk.Entry(self)
+        self.entry.pack()
+        self.entry.focus_set()
+        self.entry.bind("<Return>", parent.submit)
+    def handle_command(self,event=None, command:str = None):
+        if command is None:
+            command = self.entry.get()
+       
+        
 class SmallInputWindow(tk.Toplevel):
-    def __init__(self, parent, prompt=""):
+    def __init__(self, parent, prompt="", is_parent=False):
         super().__init__(parent)
         self.parent = parent
         self.result = None
@@ -36,35 +48,32 @@ class SmallInputWindow(tk.Toplevel):
 
         self.label = tk.Label(self, text=self.prompt)
         self.label.pack(pady=10)
-
-        self.entry = tk.Entry(self)
-        self.entry.pack(pady=5)
-        self.entry.focus_set()
-
-        self.entry.bind("<Return>", self.submit)  # Also handle Enter key
+        self.textbox = IDInputBox(self)
+        self.textbox.pack(pady=10)
+        self.textbox.entry.bind("<Return>", self.submit)  # Also handle Enter key
 
         # Wait for the window to close before continuing
-        self.grab_set()
-        self.wait_window(self)
+        if not is_parent:
+            self.grab_set()
+            self.wait_window(self)
 
     def submit(self, event=None):
-        self.result = self.entry.get()  # Get the input value
+        self.result = self.textbox.entry.get()  # Get the input value
         self.destroy()  # Close the window
 
     def get_input(self):
         return self.result
 
-class StatusInputWindow(tk.Toplevel):
+class StatusInputWindow(SmallInputWindow):
     def __init__(self, parent, prompt=""):
+        super().__init__(parent, prompt,is_parent=True)
         # self.commands = {0: 'In Use', 1: 'Available', 2: 'Unopened', 3: 'Opened', 4: 'Empty'}
         self.commands: list[str] = ['In Use', 'Available', 'Unopened', 'Opened', 'Empty']
-        self.input_window = SmallInputWindow(parent, prompt)
-        self.image_display = ImageDisplay(self.input_window, commands=self.commands)
+        self.image_display = ImageDisplay(self, commands=self.commands)
         self.image_display.pack(side="bottom", fill="both", expand=True)
+        self.grab_set()
+        self.wait_window(self)
 
-    def get_input(self):
-        return self.input_window.get_input()
-    
 class InputProcessor(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
