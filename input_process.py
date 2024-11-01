@@ -1,6 +1,8 @@
 import json
 from eln_packages_common.resourcemanage import Resource_Manager
+from datetime import datetime
 import webbrowser
+import json
 import print_handling
 
 
@@ -23,8 +25,14 @@ class Processor:
         self.gui.input_prompt((f"Item {id} archived"))
         
 
-    def mark_open(self, id: int):  # TODO: change to mark status (more abstract)
-        self.rm.change_item(id, {"status": 4})
+    def mark_open(self, id: int):
+        body = self.rm.get_item(id)
+        metadata = json.loads(body["metadata"])
+        if metadata["extra_fields"]["Opened"]["value"] != "":
+            self.gui_print(f"Item {id} already marked as opened on {metadata['extra_fields']['Opened']['value']}")
+            return
+        metadata["extra_fields"]["Opened"]["value"] = datetime.now().isoformat()[:10]
+        self.rm.change_item(id, {"metadata": json.dumps(metadata)})
         
     def edit_status(self, id: int):
         # because this task can be run in batch, it has to check if new_status has already been set, and if not, it willask
@@ -33,6 +41,9 @@ class Processor:
             if self.new_status is None or self.new_status == "":
                 self.gui_print("No experiment ID entered, status edit cancelled")
                 return
+        if self.new_status == 4:
+            # if it is marked as open
+            self.mark_open(id)
         self.rm.change_item(id, {"status": self.new_status})
         # when the last item is processed, reset the new_status
         if id == self.registry.id_registry[-1]:

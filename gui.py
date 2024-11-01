@@ -26,7 +26,6 @@ class MainApplication(tk.Frame):
     def status_prompt(self, prompt) -> str:
         input_window = StatusInputWindow(self, prompt)
         r = input_window.get_input()
-        print(r)
         return r
 class IDInputBox(tk.Frame):
     def __init__(self,parent):
@@ -81,7 +80,7 @@ class StatusInputWindow(tk.Toplevel):
         self.textbox.entry.bind("<Return>", self.submit)  # Also handle Enter key
 
         # self.commands = {0: 'In Use', 1: 'Available', 2: 'Unopened', 3: 'Opened', 4: 'Empty'}
-        self.commands: list[str] = ['In Use', 'Available', 'Unopened', 'Opened', 'Empty']
+        self.commands: list[str] = ['in use', 'available', 'unopened', 'opened', 'empty']
         self.image_display = ImageDisplay(self, commands=self.commands)
         self.image_display.pack(side="bottom", fill="both", expand=True)
         self.grab_set()
@@ -90,8 +89,8 @@ class StatusInputWindow(tk.Toplevel):
     def submit(self, event=None, command:str = None):
         if command is None:
             command = self.textbox.entry.get()
-        if command in self.commands:
-            command = self.commands.index(command)
+        if command.lower() in self.commands:
+            command = self.commands.index(command.lower()) + 1
         self.result = command
         self.destroy()  # Close the window
 
