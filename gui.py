@@ -1,11 +1,8 @@
 import tkinter as tk
 import input_process
 import subapplications.edit_status
+import subapplications.add_resource
 import elements.images
-from pathlib import Path
-
-current_dir = Path(__file__).parent
-
 
 class MainApplication(tk.Frame):
     def __init__(self, parent):
@@ -21,6 +18,7 @@ class MainApplication(tk.Frame):
         )
         self.textbox.pack(side="top", fill="both", expand=True, padx=10, pady=10)
         self.image_display.pack(side="bottom", fill="both", expand=True)
+        resouce_window = subapplications.add_resource.Add_Resource_Window(self)
 
     def input_prompt(self, prompt) -> str:
         input_window = SmallInputWindow(self, prompt)
@@ -29,7 +27,8 @@ class MainApplication(tk.Frame):
         input_window = subapplications.edit_status.StatusInputWindow(self, prompt)
         r = input_window.get_input()
         return r
-
+    def add_resource_prompt(self) -> str:
+        resource_window = subapplications.add_resource.Add_Resource_Window(self)
        
         
 class SmallInputWindow(tk.Toplevel):
