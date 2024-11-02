@@ -44,7 +44,9 @@ class Processor:
         if self.new_status == 4:
             # if it is marked as open
             self.mark_open(id)
-        self.rm.change_item(id, {"status": self.new_status})
+        if type(self.new_status) == int and self.new_status in range(1, 5):
+            self.rm.change_item(id, {"status": self.new_status})
+            self.gui_print(f"Item {id} status changed to {self.new_status}")
         # when the last item is processed, reset the new_status
         if id == self.registry.id_registry[-1]:
             self.new_status = None
