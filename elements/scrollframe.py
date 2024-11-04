@@ -10,9 +10,7 @@ class ScrollableFrame(tk.Frame):
 
         self.scrollable_frame.bind(
             "<Configure>",
-            lambda e: self.canvas.configure(
-            scrollregion=self.canvas.bbox("all")
-            )
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")),
         )
 
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
@@ -21,5 +19,6 @@ class ScrollableFrame(tk.Frame):
 
         self.canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+
     def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
