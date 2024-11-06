@@ -12,11 +12,22 @@ class Add_Resource_Window(tk.Frame):
         self.parent = parent
         self.dropdown = Category_Dropdown(self)
         self.dropdown.pack()
-        self.dictionary: dict = self.dropdown.clicked_dict
+        self.dictionary: dict = self.create_dictionary()
         self.draw_items()
 
+    def create_dictionary(self)->dict:
+        dictionary = {}
+        template:dict = self.dropdown.clicked_dict
+        # add title, metadata, body, and status fields to dictionary
+        for key in template:
+            if key in ["title", "body", "metadata", "status"]:
+                dictionary.update({key:template[key]})
+        category:int = self.dropdown.selected_cat_id
+        # add category field to dictionary
+        dictionary.update({"category":category})
+        return dictionary
+    
     def draw_items(self):
-        self.dictionary = self.dropdown.clicked_dict
         # clear all widgets in the frame
         for widget in self.winfo_children():
             # exclude self.dropdown
@@ -38,7 +49,7 @@ class Add_Resource_Window(tk.Frame):
 
         # add title and body fields
         self.title_entrybox = Labeled_Entrybox(self, category="title")
-        self.title_entrybox.entry.insert(0, self.dropdown.clicked_dict["title"])
+        self.title_entrybox.entry.insert(0, self.dictionary["title"])
         self.title_entrybox.pack(pady=10)
         self.body_box = Labeled_Textbox(self, text="body")
         self.body_box.textbox.insert(tk.END, self.dropdown.clicked_dict["body"])
@@ -78,6 +89,7 @@ class Add_Resource_Window(tk.Frame):
                 metadata[result_field]["value"] = results[result_field]
         metadata_str: str = json.dumps({"extra_fields": metadata})
         self.dictionary["metadata"] = metadata_str
+        self.dictionary["title"] = results["Title_0"]
         self.draw_items()
 
     def submit(self):
@@ -89,7 +101,8 @@ class Add_Resource_Window(tk.Frame):
         self.dictionary["metadata"] = json.dumps(new_metadata)
         self.dictionary["title"] = self.title_entrybox.entry.get()
         self.dictionary["body"] = self.body_box.textbox.get("1.0", tk.END)
-        filler.rm.create_item(self.dropdown.clicked_index, self.dictionary)
+        filler.rm.create_item(self.dropdown.selected_cat_id, self.dictionary)
+
 
 
 class Labeled_Textbox(tk.Frame):
@@ -169,7 +182,7 @@ class Category_Dropdown(tk.Frame):
 
         self.clicked: tk.StringVar = tk.StringVar()
         self.clicked.set(self.category_names[1])
-        self.clicked_index: int = 1
+        self.selected_cat_id: int = 1
         self.clicked_dict: dict = self.category_dicts[1]
 
         self.drop = tk.OptionMenu(self, self.clicked, *self.category_names)
@@ -179,8 +192,10 @@ class Category_Dropdown(tk.Frame):
         self.clicked.trace_add("write", self.on_category_change)
 
     def on_category_change(self, *args):
-        self.clicked_index: int = self.category_names.index(self.clicked.get())
-        self.clicked_dict: dict = self.category_dicts[self.clicked_index]
+        self.selected_cat_id: int = self.category_names.index(self.clicked.get()) + 1
+        print(self.selected_cat_id)
+        self.clicked_dict: dict = self.category_dicts[self.selected_cat_id-1]
+        self.parent.create_dictionary()
         self.parent.draw_items()
 
 
@@ -191,8 +206,8 @@ def main():
     root.resizable(width=True, height=True)
     root.geometry("600x600")
     scroll_area = elements.scrollframe.ScrollableFrame(root)
-    root.bind("<Button-4>", scroll_area._on_mousewheel)
-    root.bind("<Button-5>", scroll_area._on_mousewheel)
+    scroll_area.scrollable_frame.bind_all("<Button-4>", scroll_area._on_mousewheel)
+    scroll_area.scrollable_frame.bind_all("<Button-5>", scroll_area._on_mousewheel)
 
     Add_Resource_Window(scroll_area.scrollable_frame).pack(
         side="top", padx=20, fill="x", expand=True, ipadx=20
