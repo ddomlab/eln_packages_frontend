@@ -26,5 +26,3 @@ class ScrollableFrame(tk.Frame):
         else:
             scaled_delta = event.delta
         self.canvas.yview_scroll(int(-1 * (scaled_delta / 120)), "units")
-        print("scrolling")
-        print(self.canvas.yview_scroll)
