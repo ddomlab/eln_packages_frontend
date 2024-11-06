@@ -17,7 +17,7 @@ def add_item(id: int):
         if file.to_dict()["real_name"] == "label.pdf":
             merger = PdfMerger()
             new_label = io.BytesIO(  # reads the file as binary
-                rm.uploadsapi.read_upload(
+                rm.uploadsapi.read_upload( # type: ignore
                     "items", id, file.id, format="binary", _preload_content=False
                 ).data
             )

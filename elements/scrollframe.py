@@ -21,7 +21,7 @@ class ScrollableFrame(tk.Frame):
         scrollbar.pack(side="right", fill="y")
 
     def _on_mousewheel(self, event):
-        if event.delta ==0 :
+        if event.delta == 0:
             scaled_delta = ((event.num * 2) - 9) * -120
         else:
             scaled_delta = event.delta

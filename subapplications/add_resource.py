@@ -15,17 +15,17 @@ class Add_Resource_Window(tk.Frame):
         self.dictionary: dict = self.create_dictionary(self.dropdown.clicked_dict)
         self.draw_items()
 
-    def create_dictionary(self, template:dict)->dict:
+    def create_dictionary(self, template: dict) -> dict:
         dictionary = {}
         # add title, metadata, body, and status fields to dictionary
         for key in template:
             if key in ["title", "body", "metadata", "status"]:
-                dictionary.update({key:template[key]})
-        category:int = self.dropdown.clicked_index
+                dictionary.update({key: template[key]})
+        category: int = self.dropdown.clicked_index
         # add category field to dictionary
-        dictionary.update({"category":category})
+        dictionary.update({"category": category})
         return dictionary
-    
+
     def draw_items(self):
         # clear all widgets in the frame
         for widget in self.winfo_children():
@@ -103,7 +103,6 @@ class Add_Resource_Window(tk.Frame):
         filler.rm.create_item(self.dropdown.clicked_index, self.dictionary)
 
 
-
 class Labeled_Textbox(tk.Frame):
     def __init__(self, parent, text=""):
         tk.Frame.__init__(self, parent)
@@ -177,11 +176,13 @@ class Category_Dropdown(tk.Frame):
 
         # get category names and template dictionaries
         self.category_names: list[str] = []
-        self.category_dicts: list[dict] = [{"title" : ""}] + filler.rm.get_items_types() # pull dicts from eln, with an empty dictionary at the beginning
+        self.category_dicts: list[dict] = (
+            [{"title": ""}] + filler.rm.get_items_types()
+        )  # pull dicts from eln, with an empty dictionary at the beginning
         for cat in self.category_dicts:
             # for each category dictionary, add the title to the category_names list
             self.category_names.append(cat["title"])
-        self.clicked_index:int = 1 # default to Chemical Compound
+        self.clicked_index: int = 1  # default to Chemical Compound
         self.clicked: tk.StringVar = tk.StringVar()
         self.clicked.set(self.category_names[self.clicked_index])
         self.clicked_dict: dict = self.category_dicts[self.clicked_index]
@@ -193,10 +194,10 @@ class Category_Dropdown(tk.Frame):
         self.clicked.trace_add("write", self.on_category_change)
 
     def on_category_change(self, *args):
-        self.clicked_index:int = self.category_names.index(self.clicked.get())
+        self.clicked_index: int = self.category_names.index(self.clicked.get())
         self.clicked_dict: dict = self.category_dicts[self.clicked_index]
         # update the main dictionary to the trimmed down version of the clicked template dictionary
-        self.parent.dictionary = self.parent.create_dictionary(self.clicked_dict) 
+        self.parent.dictionary = self.parent.create_dictionary(self.clicked_dict)
         # refresh the screen to reflect the values in the new template
         self.parent.draw_items()
 
@@ -211,7 +212,6 @@ def main():
     scroll_area.scrollable_frame.bind_all("<Button-4>", scroll_area._on_mousewheel)
     scroll_area.scrollable_frame.bind_all("<Button-5>", scroll_area._on_mousewheel)
     scroll_area.scrollable_frame.bind_all("<MouseWheel>", scroll_area._on_mousewheel)
-
 
     Add_Resource_Window(scroll_area.scrollable_frame).pack(
         side="top", padx=20, fill="x", expand=True, ipadx=20

@@ -11,7 +11,7 @@ class MainApplication(tk.Frame):
         self.ip = input_process.Processor(self)
         self.textbox = BigTextbox(self)
         self.registry_display = RegistryDisplay(self)
-        self.image_display = elements.images.ImageDisplay(self, commands=self.ip.commands.keys())
+        self.image_display = elements.images.ImageDisplay(self, commands=list(self.ip.commands.keys()))
 
         self.registry_display.pack(
             side="left", fill="both", expand=True, padx=10, pady=10
@@ -20,14 +20,14 @@ class MainApplication(tk.Frame):
         self.image_display.pack(side="bottom", fill="both", expand=True)
         resouce_window = subapplications.add_resource.Add_Resource_Window(self)
 
-    def input_prompt(self, prompt) -> str:
+    def input_prompt(self, prompt) -> str | None:
         input_window = SmallInputWindow(self, prompt)
         return input_window.get_input()
     def status_prompt(self, prompt) -> str:
         input_window = subapplications.edit_status.StatusInputWindow(self, prompt)
         r = input_window.get_input()
-        return r
-    def add_resource_prompt(self) -> str:
+        return str(r)
+    def add_resource_prompt(self):
         resource_window = subapplications.add_resource.Add_Resource_Window(self)
        
         
@@ -57,7 +57,16 @@ class SmallInputWindow(tk.Toplevel):
 
     def get_input(self):
         return self.result
-
+class IDInputBox(tk.Frame):
+    def __init__(self,parent):
+        tk.Frame.__init__(self, parent)
+        self.parent = parent
+        self.entry = tk.Entry(self)
+        self.entry.pack()
+        self.entry.focus_set()
+        self.entry.bind("<Return>", parent.submit)
+    def handle_command(self, event=None, command:str = ""):
+        self.parent.submit(command=command)
 
 class BigTextbox(tk.Frame):
     def __init__(self, parent):
@@ -74,11 +83,11 @@ class BigTextbox(tk.Frame):
         self.output = tk.Label(self, text=self.parent.ip.output)
         self.output.pack(side="bottom")
 
-        self.entry.bind("<Return>", self.handle_command)
+        self.entry.bind("<Return>", lambda event: self.handle_command())
 
     # Function to handle the command input
-    def handle_command(self,event=None, command:str = None):
-        if command is None:
+    def handle_command(self, command:str = ""):
+        if command == "":
             command = self.entry.get()
         # Clear the entry box after pressing return
         self.entry.delete(0, tk.END)

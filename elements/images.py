@@ -3,7 +3,7 @@ from pathlib import Path
 current_dir = Path(__file__).parent
 
 class ImageDisplay(tk.Frame):
-    def __init__(self, parent, commands: list[str]=None):
+    def __init__(self, parent, commands: list[str]):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         self.commands = commands
