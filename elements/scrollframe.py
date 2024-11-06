@@ -21,4 +21,10 @@ class ScrollableFrame(tk.Frame):
         scrollbar.pack(side="right", fill="y")
 
     def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        if event.delta ==0 :
+            scaled_delta = ((event.num * 2) - 9) * -120
+        else:
+            scaled_delta = event.delta
+        self.canvas.yview_scroll(int(-1 * (scaled_delta / 120)), "units")
+        print("scrolling")
+        print(self.canvas.yview_scroll)

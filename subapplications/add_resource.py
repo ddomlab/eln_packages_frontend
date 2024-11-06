@@ -12,17 +12,16 @@ class Add_Resource_Window(tk.Frame):
         self.parent = parent
         self.dropdown = Category_Dropdown(self)
         self.dropdown.pack()
-        self.dictionary: dict = self.create_dictionary()
+        self.dictionary: dict = self.create_dictionary(self.dropdown.clicked_dict)
         self.draw_items()
 
-    def create_dictionary(self)->dict:
+    def create_dictionary(self, template:dict)->dict:
         dictionary = {}
-        template:dict = self.dropdown.clicked_dict
         # add title, metadata, body, and status fields to dictionary
         for key in template:
             if key in ["title", "body", "metadata", "status"]:
                 dictionary.update({key:template[key]})
-        category:int = self.dropdown.selected_cat_id
+        category:int = self.dropdown.clicked_index
         # add category field to dictionary
         dictionary.update({"category":category})
         return dictionary
@@ -101,7 +100,7 @@ class Add_Resource_Window(tk.Frame):
         self.dictionary["metadata"] = json.dumps(new_metadata)
         self.dictionary["title"] = self.title_entrybox.entry.get()
         self.dictionary["body"] = self.body_box.textbox.get("1.0", tk.END)
-        filler.rm.create_item(self.dropdown.selected_cat_id, self.dictionary)
+        filler.rm.create_item(self.dropdown.clicked_index, self.dictionary)
 
 
 
@@ -160,7 +159,7 @@ class Labeled_Entrybox(tk.Frame):
     def get(self) -> tuple[str, dict]:
         if self.return_dict["type"] == "number":
             self.return_dict["value"] = self.entry.get()
-            self.return_dict["units"] = self.unit.get()
+            self.return_dict["unit"] = self.unit.get()
         elif self.return_dict["type"] in self.string_types:
             self.return_dict["value"] = self.entry.get()
         elif self.return_dict["type"] in self.discrete_types:
@@ -172,18 +171,20 @@ class Category_Dropdown(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.parent = parent
+        # add label
         self.type_label: tk.Label = tk.Label(self, text="Select type of resource:")
         self.type_label.pack(pady=10)
 
+        # get category names and template dictionaries
         self.category_names: list[str] = []
-        self.category_dicts: list[dict] = filler.rm.get_items_types()
+        self.category_dicts: list[dict] = [{"title" : ""}] + filler.rm.get_items_types() # pull dicts from eln, with an empty dictionary at the beginning
         for cat in self.category_dicts:
+            # for each category dictionary, add the title to the category_names list
             self.category_names.append(cat["title"])
-
+        self.clicked_index:int = 1 # default to Chemical Compound
         self.clicked: tk.StringVar = tk.StringVar()
-        self.clicked.set(self.category_names[1])
-        self.selected_cat_id: int = 1
-        self.clicked_dict: dict = self.category_dicts[1]
+        self.clicked.set(self.category_names[self.clicked_index])
+        self.clicked_dict: dict = self.category_dicts[self.clicked_index]
 
         self.drop = tk.OptionMenu(self, self.clicked, *self.category_names)
         self.drop.pack()
@@ -192,10 +193,11 @@ class Category_Dropdown(tk.Frame):
         self.clicked.trace_add("write", self.on_category_change)
 
     def on_category_change(self, *args):
-        self.selected_cat_id: int = self.category_names.index(self.clicked.get()) + 1
-        print(self.selected_cat_id)
-        self.clicked_dict: dict = self.category_dicts[self.selected_cat_id-1]
-        self.parent.create_dictionary()
+        self.clicked_index:int = self.category_names.index(self.clicked.get())
+        self.clicked_dict: dict = self.category_dicts[self.clicked_index]
+        # update the main dictionary to the trimmed down version of the clicked template dictionary
+        self.parent.dictionary = self.parent.create_dictionary(self.clicked_dict) 
+        # refresh the screen to reflect the values in the new template
         self.parent.draw_items()
 
 
@@ -208,6 +210,8 @@ def main():
     scroll_area = elements.scrollframe.ScrollableFrame(root)
     scroll_area.scrollable_frame.bind_all("<Button-4>", scroll_area._on_mousewheel)
     scroll_area.scrollable_frame.bind_all("<Button-5>", scroll_area._on_mousewheel)
+    scroll_area.scrollable_frame.bind_all("<MouseWheel>", scroll_area._on_mousewheel)
+
 
     Add_Resource_Window(scroll_area.scrollable_frame).pack(
         side="top", padx=20, fill="x", expand=True, ipadx=20
