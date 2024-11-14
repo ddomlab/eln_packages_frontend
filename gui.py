@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.messagebox as messagebox
 import input_process
 import subapplications.edit_status
 import subapplications.add_resource
@@ -28,6 +29,8 @@ class MainApplication(tk.Frame):
         return str(r)
     def add_resource_prompt(self):
         subapplications.add_resource.Add_Resource_Window(self)
+    def show_error(self, message: str):
+        messagebox.showerror("Error", message, parent=self)
        
         
 class SmallInputWindow(tk.Toplevel):

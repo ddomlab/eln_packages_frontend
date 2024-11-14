@@ -65,7 +65,10 @@ class Processor:
             if self.experiment_id is None or self.experiment_id == "":
                 self.gui_print("No experiment ID entered, association cancelled")
                 return
-        self.rm.experiment_item_link(int(self.experiment_id), item_id)
+        try:
+            self.rm.experiment_item_link(int(self.experiment_id), item_id)
+        except ValueError:
+            self.gui.show_error(f"Failed to associate item {item_id} with experiment {self.experiment_id}")
         # when the last item is processed, reset the experiment_id
         if item_id == self.registry.id_registry[-1]:
             self.experiment_id = None
