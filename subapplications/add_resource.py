@@ -1,15 +1,34 @@
 import tkinter as tk
-
+import tkinter.messagebox as messagebox
 import elements.images
 import elements.scrollframe
 import eln_packages_common.fill_info as filler
 import json
 
-
-class Add_Resource_Window(tk.Frame):
+class Add_Resource_Window(tk.Toplevel):
     def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+        self.parent = parent
+        self.title("Add Resource")
+        self.resizable(width=False, height=True)
+        self.geometry("600x600")
+        
+        self.scroll_area = elements.scrollframe.ScrollableFrame(self)
+        self.scroll_area.scrollable_frame.bind_all("<Button-4>", self.scroll_area._on_mousewheel)
+        self.scroll_area.scrollable_frame.bind_all("<Button-5>", self.scroll_area._on_mousewheel)
+        self.scroll_area.scrollable_frame.bind_all("<MouseWheel>", self.scroll_area._on_mousewheel)
+        
+        Add_Resource_Content(self.scroll_area.scrollable_frame, self).pack(
+            side="top", padx=20, fill="x", expand=True, ipadx=20
+        )
+        self.scroll_area.pack(side="top", fill="both", expand=True)
+
+
+class Add_Resource_Content(tk.Frame):
+    def __init__(self, parent, container):
         super().__init__(parent)
         self.parent = parent
+        self.container = container # the Add_Resource_Window instance
         self.dropdown = Category_Dropdown(self)
         self.dropdown.pack()
         self.dictionary: dict = self.create_dictionary(self.dropdown.clicked_dict)
@@ -58,6 +77,8 @@ class Add_Resource_Window(tk.Frame):
 
         for entrybox in self.metadata_entryboxes:
             entrybox.pack(pady=10)
+
+        
         self.submit_button = tk.Button(self, text="Submit", command=self.submit)
         self.submit_button.pack(pady=10)
 
@@ -77,12 +98,20 @@ class Add_Resource_Window(tk.Frame):
 
     def fill_info(self, event=None):
         cas_entry: str = self.cas_entry.get()
-        results: dict = filler.pull_values(cas_entry)
+        try:
+            results: dict = filler.pull_values(cas_entry)
+        except ValueError as e:
+            messagebox.showerror("Error", str(e), parent=self)
+            self.draw_items()
+            return    
         metadata: dict = json.loads(self.dropdown.clicked_dict["metadata"])[
             "extra_fields"
         ]
         if filler.check_if_cas(cas_entry):
             metadata["CAS"]["value"] = cas_entry
+        elif "CAS" in results.keys():
+            metadata["CAS"]["value"] = results["CAS"]
+        
         for result_field in results:
             if result_field in metadata:
                 metadata[result_field]["value"] = results[result_field]
@@ -92,15 +121,33 @@ class Add_Resource_Window(tk.Frame):
         self.draw_items()
 
     def submit(self):
+        # check that all required fields are filled
+        for entrybox in self.metadata_entryboxes:
+            if "required" in entrybox.get()[1]:
+                if entrybox.get()[1]["required"] and entrybox.get()[1]["value"] == "":
+                    messagebox.showerror(
+                        "Error",
+                        f"Field {entrybox.get()[0]} is required",
+                        parent=self,
+                    )
+                    return
+        # get all the metadata values from the entryboxes, update the metadata dictionary, and put that in the main dictionary
         new_metadata: dict = json.loads(self.dictionary["metadata"])
         for entrybox in self.metadata_entryboxes:
             entry_dict: dict = entrybox.get()[1]
             entry_name: str = entrybox.get()[0]
             new_metadata["extra_fields"][entry_name] = entry_dict
         self.dictionary["metadata"] = json.dumps(new_metadata)
+
+        # get all non-metadata values from the entryboxes and update the main dictionary
         self.dictionary["title"] = self.title_entrybox.entry.get()
         self.dictionary["body"] = self.body_box.textbox.get("1.0", tk.END)
+
+        # create the new item in the ELN
         filler.rm.create_item(self.dropdown.clicked_index, self.dictionary)
+
+        # close the window
+        self.container.destroy()
 
 
 class Labeled_Textbox(tk.Frame):
@@ -202,19 +249,3 @@ class Category_Dropdown(tk.Frame):
         self.parent.draw_items()
 
 
-def main():
-    # Create the main window
-    root = tk.Tk()
-    root.title("Add Resource")
-    root.resizable(width=True, height=True)
-    root.geometry("600x600")
-    scroll_area = elements.scrollframe.ScrollableFrame(root)
-    scroll_area.scrollable_frame.bind_all("<Button-4>", scroll_area._on_mousewheel)
-    scroll_area.scrollable_frame.bind_all("<Button-5>", scroll_area._on_mousewheel)
-    scroll_area.scrollable_frame.bind_all("<MouseWheel>", scroll_area._on_mousewheel)
-
-    Add_Resource_Window(scroll_area.scrollable_frame).pack(
-        side="top", padx=20, fill="x", expand=True, ipadx=20
-    )
-    scroll_area.pack(side="top", fill="both", expand=True)
-    root.mainloop()

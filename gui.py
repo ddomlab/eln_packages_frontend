@@ -18,7 +18,6 @@ class MainApplication(tk.Frame):
         )
         self.textbox.pack(side="top", fill="both", expand=True, padx=10, pady=10)
         self.image_display.pack(side="bottom", fill="both", expand=True)
-        resouce_window = subapplications.add_resource.Add_Resource_Window(self)
 
     def input_prompt(self, prompt) -> str | None:
         input_window = SmallInputWindow(self, prompt)
@@ -28,7 +27,7 @@ class MainApplication(tk.Frame):
         r = input_window.get_input()
         return str(r)
     def add_resource_prompt(self):
-        resource_window = subapplications.add_resource.Add_Resource_Window(self)
+        subapplications.add_resource.Add_Resource_Window(self)
        
         
 class SmallInputWindow(tk.Toplevel):

@@ -2,17 +2,16 @@ import json
 from eln_packages_common.resourcemanage import Resource_Manager
 from datetime import datetime
 import webbrowser
-from eln_packages_frontend.gui import MainApplication
 from typing import Any
 import print_handling
 
 
 class Processor:
-    def __init__(self, gui: MainApplication):
+    def __init__(self, gui):
         self.registry: Registry = Registry()
         self.rm = Resource_Manager()
         self.output: str = ""  # use like print() but for the GUI
-        self.gui: MainApplication = gui
+        self.gui = gui
         self.print_handling = print_handling
         self.experiment_id: str | None = None  # for associating items with experiments, needs to be stored outside method for batch operations
         self.new_status = None # for changing status, needs to be stored outside method for batch operations
@@ -75,6 +74,8 @@ class Processor:
         self.print_handling.add_item(id)
         if id == self.registry.id_registry[-1]:
             self.print_handling.write_labels()
+    def add_resource(self):
+        self.gui.add_resource_prompt()
 
     ###   ###
     commands: dict = {
@@ -85,8 +86,9 @@ class Processor:
         "clear": clear,
         "associate": associate,
         "print": add_and_print_registry,
+        "add_resource": add_resource
     }
-    override_commands: list[str] = ["clear", "batch"]
+    override_commands: list[str] = ["clear", "batch", "add_resource"]
 
     # I made the interesting decision to store the data on the QR codes as json strings, rather than as plain text commands.
     # On the one hand, this requires some more processing, I suppose I could have just had the QR codes store the commands directly,
