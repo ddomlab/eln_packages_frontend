@@ -27,10 +27,10 @@ class StatusInputWindow(tk.Toplevel):
             self.result = self.commands.index(command.lower()) + 1
         else:
             self.feedback.config(text="Invalid input: \"" + command + "\", please try again.")
-        print("result " + str(self.result))
+            self.result = None
         self.destroy()  # Close the window
 
-    def get_input(self) ->int:
+    def get_input(self) ->int|None:
         return self.result
 class IDInputBox(tk.Frame):
     # parent could be any number of tk.Frame children.
