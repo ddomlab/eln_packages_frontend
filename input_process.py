@@ -37,7 +37,7 @@ class Processor:
     def edit_status(self, id: int):
         # because this task can be run in batch, it has to check if new_status has already been set, and if not, it willask
         if self.new_status is None:
-            self.new_status = self.gui.status_prompt("Enter new status")
+            self.new_status = int(self.gui.status_prompt("Enter new status"))
             if self.new_status is None or self.new_status == "":
                 self.gui_print("No experiment ID entered, status edit cancelled")
                 return
