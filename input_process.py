@@ -2,7 +2,7 @@ import json
 from eln_packages_common.resourcemanage import Resource_Manager
 from datetime import datetime
 import webbrowser
-import json
+from typing import Any
 import print_handling
 
 
@@ -13,7 +13,7 @@ class Processor:
         self.output: str = ""  # use like print() but for the GUI
         self.gui = gui
         self.print_handling = print_handling
-        self.experiment_id = None  # for associating items with experiments, needs to be stored outside method for batch operations
+        self.experiment_id: str | None = None  # for associating items with experiments, needs to be stored outside method for batch operations
         self.new_status = None # for changing status, needs to be stored outside method for batch operations
 
     ### Actions ###
@@ -26,7 +26,7 @@ class Processor:
         
 
     def mark_open(self, id: int):
-        body = self.rm.get_item(id)
+        body:dict[str,Any] = self.rm.get_item(id)
         metadata = json.loads(body["metadata"])
         if metadata["extra_fields"]["Opened"]["value"] != "":
             self.gui_print(f"Item {id} already marked as opened on {metadata['extra_fields']['Opened']['value']}")
@@ -41,18 +41,20 @@ class Processor:
             if self.new_status is None or self.new_status == "":
                 self.gui_print("No experiment ID entered, status edit cancelled")
                 return
-        if self.new_status == 4:
+        if int(self.new_status) == 4:
             # if it is marked as open
             self.mark_open(id)
-        self.rm.change_item(id, {"status": self.new_status})
+        if type(self.new_status) is int and self.new_status in range(1, 5):
+            self.rm.change_item(id, {"status": self.new_status})
+            self.gui_print(f"Item {id} status changed to {self.new_status}")
         # when the last item is processed, reset the new_status
         if id == self.registry.id_registry[-1]:
             self.new_status = None
 
-    def batch_action(self, *args):
+    def batch_action(self):
         self.registry.toggle_batch()
 
-    def clear(self, *args):
+    def clear(self):
         self.registry = Registry()
         #self.gui_print("registry cleared")
 
@@ -63,7 +65,10 @@ class Processor:
             if self.experiment_id is None or self.experiment_id == "":
                 self.gui_print("No experiment ID entered, association cancelled")
                 return
-        self.rm.experiment_item_link(self.experiment_id, item_id)
+        try:
+            self.rm.experiment_item_link(int(self.experiment_id), item_id)
+        except ValueError:
+            self.gui.show_error(f"Failed to associate item {item_id} with experiment {self.experiment_id}")
         # when the last item is processed, reset the experiment_id
         if item_id == self.registry.id_registry[-1]:
             self.experiment_id = None
@@ -72,6 +77,8 @@ class Processor:
         self.print_handling.add_item(id)
         if id == self.registry.id_registry[-1]:
             self.print_handling.write_labels()
+    def add_resource(self):
+        self.gui.add_resource_prompt()
 
     ###   ###
     commands: dict = {
@@ -82,8 +89,9 @@ class Processor:
         "clear": clear,
         "associate": associate,
         "print": add_and_print_registry,
+        "add_resource": add_resource
     }
-    override_commands: list[str] = ["clear", "batch"]
+    override_commands: list[str] = ["clear", "batch", "add_resource"]
 
     # I made the interesting decision to store the data on the QR codes as json strings, rather than as plain text commands.
     # On the one hand, this requires some more processing, I suppose I could have just had the QR codes store the commands directly,
@@ -109,9 +117,10 @@ class Processor:
     # register items from a python dictionary or json file
         if type(input) is str:
             data = json.loads(input)  # if it's json, turn it into a dict
-        else:
+        elif type(input) is dict:
             data = input  # if it's already a python dict, use that
-
+        else:
+            raise ValueError("Invalid input type")
         for key in data.keys():
             if (
                 key == "id"

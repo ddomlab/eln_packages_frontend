@@ -1,9 +1,9 @@
 import tkinter as tk
+import tkinter.messagebox as messagebox
 import input_process
-from pathlib import Path
-
-current_dir = Path(__file__).parent
-
+import subapplications.edit_status
+import subapplications.add_resource
+import elements.images
 
 class MainApplication(tk.Frame):
     def __init__(self, parent):
@@ -12,7 +12,7 @@ class MainApplication(tk.Frame):
         self.ip = input_process.Processor(self)
         self.textbox = BigTextbox(self)
         self.registry_display = RegistryDisplay(self)
-        self.image_display = ImageDisplay(self, commands=self.ip.commands.keys())
+        self.image_display = elements.images.ImageDisplay(self, commands=list(self.ip.commands.keys()))
 
         self.registry_display.pack(
             side="left", fill="both", expand=True, padx=10, pady=10
@@ -20,23 +20,17 @@ class MainApplication(tk.Frame):
         self.textbox.pack(side="top", fill="both", expand=True, padx=10, pady=10)
         self.image_display.pack(side="bottom", fill="both", expand=True)
 
-    def input_prompt(self, prompt) -> str:
+    def input_prompt(self, prompt) -> str | None:
         input_window = SmallInputWindow(self, prompt)
         return input_window.get_input()
     def status_prompt(self, prompt) -> str:
-        input_window = StatusInputWindow(self, prompt)
+        input_window = subapplications.edit_status.StatusInputWindow(self, prompt)
         r = input_window.get_input()
-        return r
-class IDInputBox(tk.Frame):
-    def __init__(self,parent):
-        tk.Frame.__init__(self, parent)
-        self.parent = parent
-        self.entry = tk.Entry(self)
-        self.entry.pack()
-        self.entry.focus_set()
-        self.entry.bind("<Return>", parent.submit)
-    def handle_command(self, event=None, command:str = None):
-        self.parent.submit(command=command)
+        return str(r)
+    def add_resource_prompt(self):
+        subapplications.add_resource.Add_Resource_Window(self)
+    def show_error(self, message: str):
+        messagebox.showerror("Error", message, parent=self)
        
         
 class SmallInputWindow(tk.Toplevel):
@@ -65,37 +59,16 @@ class SmallInputWindow(tk.Toplevel):
 
     def get_input(self):
         return self.result
-
-class StatusInputWindow(tk.Toplevel):
-    def __init__(self, parent, prompt=""):
-        super().__init__(parent)
+class IDInputBox(tk.Frame):
+    def __init__(self,parent):
+        tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.result = None
-        self.prompt = prompt
-
-        self.label = tk.Label(self, text=self.prompt)
-        self.label.pack(pady=10)
-        self.textbox = IDInputBox(self)
-        self.textbox.pack(pady=10)
-        self.textbox.entry.bind("<Return>", self.submit)  # Also handle Enter key
-
-        # self.commands = {0: 'In Use', 1: 'Available', 2: 'Unopened', 3: 'Opened', 4: 'Empty'}
-        self.commands: list[str] = ['in use', 'available', 'unopened', 'opened', 'empty']
-        self.image_display = ImageDisplay(self, commands=self.commands)
-        self.image_display.pack(side="bottom", fill="both", expand=True)
-        self.grab_set()
-        self.wait_window(self)
-
-    def submit(self, event=None, command:str = None):
-        if command is None:
-            command = self.textbox.entry.get()
-        if command.lower() in self.commands:
-            command = self.commands.index(command.lower()) + 1
-        self.result = command
-        self.destroy()  # Close the window
-
-    def get_input(self):
-        return self.result
+        self.entry = tk.Entry(self)
+        self.entry.pack()
+        self.entry.focus_set()
+        self.entry.bind("<Return>", parent.submit)
+    def handle_command(self, event=None, command:str = ""):
+        self.parent.submit(command=command)
 
 class BigTextbox(tk.Frame):
     def __init__(self, parent):
@@ -112,11 +85,11 @@ class BigTextbox(tk.Frame):
         self.output = tk.Label(self, text=self.parent.ip.output)
         self.output.pack(side="bottom")
 
-        self.entry.bind("<Return>", self.handle_command)
+        self.entry.bind("<Return>", lambda event: self.handle_command())
 
     # Function to handle the command input
-    def handle_command(self,event=None, command:str = None):
-        if command is None:
+    def handle_command(self, command:str = ""):
+        if command == "":
             command = self.entry.get()
         # Clear the entry box after pressing return
         self.entry.delete(0, tk.END)
@@ -146,39 +119,6 @@ class RegistryDisplay(tk.Frame):
         self.listbox.delete(0, tk.END)
         for item in registry:
             self.listbox.insert(tk.END, item)
-
-
-class ImageDisplay(tk.Frame):
-    def __init__(self, parent, commands: list[str]=None):
-        tk.Frame.__init__(self, parent)
-        self.parent = parent
-        self.commands = commands
-        self.create_grid()
-
-    def create_grid(self):
-        # Display images in a 2x4 grid
-        for i, imagename in enumerate(self.commands):
-            row = i // 2
-            col = i % 2
-            imagegroup = ImageWithCaption(self, imagename, imagename)
-            imagegroup.grid(row=row, column=col, padx=40, pady=40)
-
-
-class ImageWithCaption(tk.Frame):
-    def __init__(self, parent, imagename, captiontext):
-        tk.Frame.__init__(self, parent)
-        self.parent = parent
-        self.image = tk.PhotoImage(
-            file = str(current_dir / "images" / f"{imagename}.gif")
-        )
-        self.img_btn = tk.Button(
-            self, 
-            image=self.image,
-            command=lambda: self.parent.parent.textbox.handle_command(command=imagename),
-            )
-        self.img_btn.pack()
-        self.caption = tk.Label(self, text=captiontext)
-        self.caption.pack()
 
 
 def main():
