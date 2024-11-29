@@ -75,17 +75,17 @@ class Add_Resource_Content(tk.Frame):
 
         self.add_metadata_fields()
 
+        # add the rest of the metadata fields
         for entrybox in self.metadata_entryboxes:
             entrybox.pack(pady=10)
 
-        
         self.submit_button = tk.Button(self, text="Submit", command=self.submit)
         self.submit_button.pack(pady=10)
 
     def add_metadata_fields(self):
         # get all metadata fields from the resource template, and have a list with an Entrybox for each
-        self.metadata_entryboxes: list[Labeled_Entrybox] = []
         metadata_dict: dict = json.loads(self.dictionary["metadata"])["extra_fields"]
+        self.metadata_entryboxes: list[Labeled_Entrybox] = [Labeled_Entrybox(self)] * len(metadata_dict)
         # for each metadata field, add an Entrybox to the list
         for field in metadata_dict:
             entrybox: Labeled_Entrybox = Labeled_Entrybox(
@@ -93,8 +93,12 @@ class Add_Resource_Content(tk.Frame):
             )
             if metadata_dict[field]["type"] not in ["select", "radio"]:
                 entrybox.entry.insert(0, metadata_dict[field]["value"])
-            entrybox.pack(pady=10)
-            self.metadata_entryboxes.append(entrybox)
+            try:
+                position: int = metadata_dict[field]["position"]
+                self.metadata_entryboxes[position] = entrybox
+            except KeyError:
+                print(f"Field {field} has no position, make sure to specify the order of entries in the template in the admin panel")
+
 
     def fill_info(self, event=None):
         cas_entry: str = self.cas_entry.get()
@@ -131,6 +135,11 @@ class Add_Resource_Content(tk.Frame):
                         parent=self,
                     )
                     return
+            if entrybox.get()[0] == "Opened" and entrybox.get()[1]["value"] != "":
+                # mark the item status as opened if the Opened field is filled
+                self.dictionary["status"] = 4
+            else: 
+                print(entrybox.get()[0])
         # get all the metadata values from the entryboxes, update the metadata dictionary, and put that in the main dictionary
         new_metadata: dict = json.loads(self.dictionary["metadata"])
         for entrybox in self.metadata_entryboxes:
@@ -191,10 +200,11 @@ class Labeled_Entrybox(tk.Frame):
             self.entry = tk.Entry(self.textbox_frame)
             self.entry.pack()
         elif value_info["type"] in self.discrete_types:
+            options = [""] + value_info["options"]
             self.choice = tk.StringVar()
-            self.choice.set(value_info["options"][0])
+            self.choice.set(options)
             self.chooser = tk.OptionMenu(
-                self.textbox_frame, self.choice, *value_info["options"]
+                self.textbox_frame, self.choice, *options
             )
             self.chooser.pack()
 
@@ -229,7 +239,7 @@ class Category_Dropdown(tk.Frame):
         for cat in self.category_dicts:
             # for each category dictionary, add the title to the category_names list
             self.category_names.append(cat["title"])
-        self.clicked_index: int = 1  # default to Chemical Compound
+        self.clicked_index: int = 2  # default to Chemical Compound 
         self.clicked: tk.StringVar = tk.StringVar()
         self.clicked.set(self.category_names[self.clicked_index])
         self.clicked_dict: dict = self.category_dicts[self.clicked_index]
