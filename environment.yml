@@ -13,3 +13,4 @@ dependencies:  # Packages should be installed through conda if possible
     - elabapi_python
     - pubchempy
     - tkcalendar
+    - rdkit

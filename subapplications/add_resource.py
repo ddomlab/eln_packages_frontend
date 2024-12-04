@@ -23,7 +23,6 @@ class Add_Resource_Window(tk.Toplevel):
         )
         self.scroll_area.pack(side="top", fill="both", expand=True)
 
-
 class Add_Resource_Content(tk.Frame):
     def __init__(self, parent, container):
         super().__init__(parent)
@@ -158,7 +157,6 @@ class Add_Resource_Content(tk.Frame):
         # close the window
         self.container.destroy()
 
-
 class Labeled_Textbox(tk.Frame):
     def __init__(self, parent, text=""):
         tk.Frame.__init__(self, parent)
@@ -167,7 +165,6 @@ class Labeled_Textbox(tk.Frame):
         self.label.pack(pady=10)
         self.textbox = tk.Text(self, height=10, width=30)
         self.textbox.pack(pady=10)
-
 
 class Labeled_Entrybox(tk.Frame):
     def __init__(
@@ -202,7 +199,7 @@ class Labeled_Entrybox(tk.Frame):
         elif value_info["type"] in self.discrete_types:
             options = [""] + value_info["options"]
             self.choice = tk.StringVar()
-            self.choice.set(options)
+            self.choice.set(options[0])
             self.chooser = tk.OptionMenu(
                 self.textbox_frame, self.choice, *options
             )
@@ -221,7 +218,6 @@ class Labeled_Entrybox(tk.Frame):
         elif self.return_dict["type"] in self.discrete_types:
             self.return_dict["value"] = self.choice.get()
         return (self.category, self.return_dict)
-
 
 class Category_Dropdown(tk.Frame):
     def __init__(self, parent):
@@ -257,5 +253,3 @@ class Category_Dropdown(tk.Frame):
         self.parent.dictionary = self.parent.create_dictionary(self.clicked_dict)
         # refresh the screen to reflect the values in the new template
         self.parent.draw_items()
-
-
