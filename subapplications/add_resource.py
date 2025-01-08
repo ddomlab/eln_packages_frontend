@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox as messagebox
+
 import elements.images
 import elements.scrollframe
 import eln_packages_common.fill_info as filler
@@ -124,9 +125,16 @@ class Add_Resource_Content(tk.Frame):
         self.draw_items()
 
     def submit(self):
+        has_Mn = False
+        has_Mw = False
         # check that all required fields are filled
         for entrybox in self.metadata_entryboxes:
-            if "required" in entrybox.get()[1]:
+            # check that Mn or Mw is filled
+            if entrybox.get()[0] == "Mn" and entrybox.get()[1]["value"] !="": 
+                has_Mn = True
+            if entrybox.get()[0] == "Mw" and entrybox.get()[1]["value"] !="": 
+                has_Mw = True
+            if "required" in entrybox.get()[1] and entrybox.get()[0] not in ["Mn", "Mw"]:
                 if entrybox.get()[1]["required"] and entrybox.get()[1]["value"] == "":
                     messagebox.showerror(
                         "Error",
@@ -139,6 +147,14 @@ class Add_Resource_Content(tk.Frame):
                 self.dictionary["status"] = 4
             else: 
                 print(entrybox.get()[0])
+        # throw error if neither Mn nor Mw is filled
+        if not (has_Mn or has_Mw):
+            messagebox.showerror(
+                "Error",
+                "Please fill in either Mn or Mw",
+                parent=self,
+            )
+            return
         # get all the metadata values from the entryboxes, update the metadata dictionary, and put that in the main dictionary
         new_metadata: dict = json.loads(self.dictionary["metadata"])
         for entrybox in self.metadata_entryboxes:
