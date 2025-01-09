@@ -92,7 +92,13 @@ class Add_Resource_Content(tk.Frame):
                 self, category=field, value_info=metadata_dict[field]
             )
             if metadata_dict[field]["type"] not in ["select", "radio"]:
-                entrybox.entry.insert(0, metadata_dict[field]["value"])
+                value = metadata_dict[field]["value"]
+                if value is not None:
+                    entrybox.entry.insert(0, metadata_dict[field]["value"])
+                else:
+                    entrybox.entry.insert(0, "")
+                    messagebox.showerror("Warning", f"Field \"{field}\" not found in search results, please fill in manually", parent=self)
+
             try:
                 position: int = metadata_dict[field]["position"]
                 self.metadata_entryboxes[position] = entrybox
