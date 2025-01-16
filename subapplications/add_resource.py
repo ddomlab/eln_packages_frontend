@@ -140,7 +140,7 @@ class Add_Resource_Content(tk.Frame):
                 has_Mn = True
             if entrybox.get()[0] == "Mw" and entrybox.get()[1]["value"] !="": 
                 has_Mw = True
-            if "required" in entrybox.get()[1] and entrybox.get()[0] not in ["Mn", "Mw"]:
+            if "required" in entrybox.get()[1]:
                 if entrybox.get()[1]["required"] and entrybox.get()[1]["value"] == "":
                     messagebox.showerror(
                         "Error",
