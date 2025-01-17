@@ -140,7 +140,7 @@ class Add_Resource_Content(tk.Frame):
                 has_Mn = True
             if entrybox.get()[0] == "Mw" and entrybox.get()[1]["value"] !="": 
                 has_Mw = True
-            if "required" in entrybox.get()[1]:
+            if "required" in entrybox.get()[1] and entrybox.get()[0] not in ["Mn", "Mw"]:
                 if entrybox.get()[1]["required"] and entrybox.get()[1]["value"] == "":
                     messagebox.showerror(
                         "Error",
@@ -154,7 +154,7 @@ class Add_Resource_Content(tk.Frame):
             else: 
                 print(entrybox.get()[0])
         # throw error if neither Mn nor Mw is filled
-        if not (has_Mn or has_Mw):
+        if not (has_Mn or has_Mw) and self.dropdown.clicked.get() == "Polymer":
             messagebox.showerror(
                 "Error",
                 "Please fill in either Mn or Mw",
