@@ -75,7 +75,7 @@ class BigTextbox(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
 
-        self.output = tk.Label(self, text="Enter Action or ID Below:")
+        self.output = tk.Label(self, text="Enter Action or ID Below:", font=("Liberation Sans", 16))
         self.output.pack(side="top")
 
         self.entry = tk.Entry(self, width=50)
@@ -106,7 +106,7 @@ class RegistryDisplay(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.label = tk.Label(self, text="Registry")
+        self.label = tk.Label(self, text="Registry", font=("Liberation Sans", 16))
         self.label.pack()
         self.listbox = tk.Listbox(self, width=6, height=1)
         self.listbox.pack()
