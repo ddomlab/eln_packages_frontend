@@ -14,11 +14,11 @@ def add_item(id: int):
     for file in rm.get_uploaded_files(
         id
     ):  # looks at all the files uploaded to the item, but only selects ones named label.pdf
-        if file.to_dict()["real_name"] == "label.pdf":
+        if file["real_name"] == "label.pdf":
             merger = PdfMerger()
             new_label = io.BytesIO(  # reads the file as binary
                 rm.uploadsapi.read_upload( # type: ignore
-                    "items", id, file.id, format="binary", _preload_content=False
+                    "items", id, file['id'], format="binary", _preload_content=False
                 ).data
             )
             try:  # if the file exsits, it merges the new label with the existing one

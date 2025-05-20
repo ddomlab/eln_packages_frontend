@@ -29,5 +29,5 @@ class ImageWithCaption(tk.Frame):
             command=lambda: self.parent.parent.textbox.handle_command(command=imagename),
             )
         self.img_btn.pack()
-        self.caption = tk.Label(self, text=captiontext)
+        self.caption = tk.Label(self, text=captiontext, font=("Liberation Sans", 16))
         self.caption.pack()
